@@ -15,7 +15,7 @@
 <style>
   table {
     width: 100%;
-    border: 1px solid #444444;
+    border: 1px solid #444444; 
     border-collapse: collapse;
   }
   th, td {
@@ -84,6 +84,7 @@
 	%>
 								<tr>
 									<td align="center"><%=positionMap.get("positionName") %></td>
+									<%-- <td align="center" rowspan="<%=positionMap.size() - 1 %>"><%=positionMap.get("positionName") %></td> --%>
 									<td align="center"><%=evalMap.get("evalFieldName") %></td>
 	<%
 							} else {
