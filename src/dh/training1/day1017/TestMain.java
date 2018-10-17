@@ -1,4 +1,4 @@
-package training1;
+package dh.training1.day1017;
 
 import java.util.ArrayList;
 import java.util.Map;
