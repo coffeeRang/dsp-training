@@ -83,7 +83,7 @@
 								System.out.println("\t\t지표구분 : " + evalMap.get("evalFieldName"));
 	%>
 								<tr>
-									<td align="center"><%=positionMap.get("positionName") %></td>
+									<td align="center" rowspan="<%=positionMap.size()-1 %>"><%=positionMap.get("positionName") %></td>
 									<%-- <td align="center" rowspan="<%=positionMap.size() - 1 %>"><%=positionMap.get("positionName") %></td> --%>
 									<td align="center"><%=evalMap.get("evalFieldName") %></td>
 	<%
