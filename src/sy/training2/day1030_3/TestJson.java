@@ -1,6 +1,8 @@
 package sy.training2.day1030_3;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 import org.eclipse.jdt.internal.compiler.batch.Main;
@@ -135,14 +137,39 @@ public class TestJson {
 	 * @return result
 	 */
 	public double roundd(double target, int count) {
-//		System.out.println(target + " : " + count);
 		double value = 0;
 		double result = 0;
 		for(int i=0; i<=count; i++) {
 			value= i * 10 ;
 		}
 		result = Math.round(target * value) / value;
-//		System.out.println("result :: "+result);
 		return result;
 	}
+	
+
+	// 2,196.1 처럼 String 값 들어올시 Double.parseDouble 캐스팅 과정에서 에러 발생함
+	// 확인하기_2018-10-30(화)
+	public String sumValueAndRoundByDecimalPlace(String value1, String value2, int decimalPlace) {
+		if (value1.contains(",")) {
+			System.out.println(", 갖고 있다!!");
+		}
+
+		double doubleVal1 = Double.parseDouble(value1);
+		double doubleVal2 = Double.parseDouble(value2);
+		
+		System.out.println(">. doubleVal1 : " + doubleVal1 + ", doubleVal2 : " + doubleVal2);
+		
+		return sumValueAndRoundByDecimalPlace(doubleVal1, doubleVal2, decimalPlace);
+	}
+	
+	// target 데이터를 받아와 
+	public String sumValueAndRoundByDecimalPlace(double value1, double value2, int decimalPlace) {
+		double sumDoubleValue = value1 + value2;
+		String result = String.format("%,3."+decimalPlace+"f", sumDoubleValue);
+		System.out.println(">> sumDoubleValue : " + sumDoubleValue + ", result : " + result);
+		
+		return result;
+		
+	}
+	
 }

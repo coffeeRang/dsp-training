@@ -64,27 +64,25 @@ public class BsTable {
 
 						stdMap = new TreeMap<String, Object>();
 						stdMap.put("account_sbjt_name", account_sbjt_name);
-
 						stdMap.put(prev_current, seriesdata);
-
 						stdMap.put(std_cd, prevMap);
 
 						map.put(account_sbjt_cd, stdMap);
 
-						// stdMap이 널이 아닐때
-					} else {
+					} else {	// stdMap이 널이 아닐때
 						prevMap = (Map<String, Object>) stdMap.get(std_cd);
 
 						if (stdMap.get(prev_current) == null) {
 							stdMap.put(prev_current, seriesdata);
 						} else {
-//							double val1 = Double.parseDouble((String) stdMap.get(prev_current));
-//							double val2 = Double.parseDouble((String) seriesdata);
-							double val1 = tj.roundd((String)stdMap.get(prev_current));
-							double val2 = tj.roundd(seriesdata);
-							double sumVal = Math.round(val1 + val2);
+//							double val1 = tj.roundd((String)stdMap.get(prev_current));
+//							double val2 = tj.roundd(seriesdata);
+//							double sumVal = Math.round(val1 + val2);
+//							stdMap.put(prev_current,Double.toString(sumVal));
 							
-							stdMap.put(prev_current,Double.toString(sumVal));
+							String sumVal = tj.sumValueAndRoundByDecimalPlace((String)stdMap.get(prev_current), seriesdata, 1);
+							stdMap.put(prev_current, sumVal);
+							
 						}
 
 						// prevMap이 널일때
@@ -103,18 +101,18 @@ public class BsTable {
 							if (prevMap.get(prev_current) == null) {
 								prevMap.put(prev_current, seriesdata);
 							} else {
-//								double val1 = Double.parseDouble((String) prevMap.get(prev_current));
-//								double val2 = Double.parseDouble((String) seriesdata);
-								double val1 = tj.roundd((String)prevMap.get(prev_current));
-								double val2 = tj.roundd(seriesdata);
-								double sumVal = Math.round(val1 + val2);
-								prevMap.put(prev_current,Double.toString(sumVal));
+//								double val1 = tj.roundd((String)prevMap.get(prev_current));
+//								double val2 = tj.roundd(seriesdata);
+//								double sumVal = Math.round(val1 + val2);
+//								prevMap.put(prev_current,Double.toString(sumVal));
+								
+								String sumVal = tj.sumValueAndRoundByDecimalPlace((String)prevMap.get(prev_current), seriesdata, 1);
+								prevMap.put(prev_current, sumVal);
 							}
 						}
 					}
 
-					// 0000이 아닐때
-				} else {
+				} else {	// 0000이 아닐때
 					stdMap = (Map<String, Object>) map.get(account_sbjt_cd.substring(0, 3) + "0000");
 					// 부모대행 == 최상위코드의 자식
 					prevMap = (Map<String, Object>) stdMap.get(account_sbjt_cd);
@@ -134,12 +132,13 @@ public class BsTable {
 						if (stdMap.get(prev_current) == null) {
 							stdMap.put(prev_current, seriesdata);
 						} else {
-//							double val1 = Double.parseDouble((String) stdMap.get(prev_current));
-//							double val2 = Double.parseDouble((String) seriesdata);
-							double val1 = tj.roundd((String)stdMap.get(prev_current));
-							double val2 = tj.roundd(seriesdata);
-							double sumVal = Math.round(val1 + val2);
-							stdMap.put(prev_current,Double.toString(sumVal));
+//							double val1 = tj.roundd((String)stdMap.get(prev_current));
+//							double val2 = tj.roundd(seriesdata);
+//							double sumVal = Math.round(val1 + val2);
+//							stdMap.put(prev_current,Double.toString(sumVal));
+							
+							String sumVal = tj.sumValueAndRoundByDecimalPlace((String)stdMap.get(prev_current), seriesdata, 1);
+							stdMap.put(prev_current, sumVal);
 						}
 
 						stdMap.put(account_sbjt_cd.substring(0, 4) + "000",prevMap);
@@ -147,46 +146,46 @@ public class BsTable {
 
 						map.put(account_sbjt_cd.substring(0, 3) + "0000",stdMap);
 
-						// prevMap이 있을때
-					} else {
+					} else {	// prevMap이 있을때
 						if (stdMap.get(prev_current) == null) {
 							stdMap.put(prev_current, seriesdata);
 						} else {
-//							double val1 = Double.parseDouble((String) stdMap.get(prev_current));
-//							double val2 = Double.parseDouble((String) seriesdata);
-							double val1 = tj.roundd((String)stdMap.get(prev_current));
-							double val2 = tj.roundd(seriesdata);
-							double sumVal = Math.round(val1 + val2);
-							stdMap.put(prev_current,Double.toString(sumVal));
+//							double val1 = tj.roundd((String)stdMap.get(prev_current));
+//							double val2 = tj.roundd(seriesdata);
+//							double sumVal = Math.round(val1 + val2);
+//							stdMap.put(prev_current,Double.toString(sumVal));
+							
+							String sumVal = tj.sumValueAndRoundByDecimalPlace((String)stdMap.get(prev_current), seriesdata, 1);
+							stdMap.put(prev_current, sumVal);
 						}
 						seriesMap = (Map<String, Object>) prevMap.get(std_cd);
 
 						if (prevMap.get(prev_current) == null) {
 							prevMap.put(prev_current, seriesdata);
 						} else {
-//							double val1 = Double.parseDouble((String) prevMap.get(prev_current));
-//							double val2 = Double.parseDouble((String) seriesdata);
-							double val1 = tj.roundd((String)prevMap.get(prev_current));
-							double val2 = tj.roundd(seriesdata);
-							double sumVal = Math.round(val1 + val2);
-							prevMap.put(prev_current,Double.toString(sumVal));
+//							double val1 = tj.roundd((String)prevMap.get(prev_current));
+//							double val2 = tj.roundd(seriesdata);
+//							double sumVal = Math.round(val1 + val2);
+//							prevMap.put(prev_current,Double.toString(sumVal));
+							
+							String sumVal = tj.sumValueAndRoundByDecimalPlace((String)prevMap.get(prev_current), seriesdata, 1);
+							prevMap.put(prev_current, sumVal);
+							
 						}
+
 						// seriesMap이 없을때
 						if (seriesMap == null) {
 							seriesMap = new TreeMap<String, Object>();
 							double rod = tj.roundd(seriesdata);
 							seriesMap.put(prev_current,Double.toString(rod));
-//							seriesMap.put(prev_current, seriesdata);
 							seriesMap.put("std_name", std_name);
 
 							prevMap.put(std_cd, seriesMap);
 
-							// 자식의 자식이 있을때
-						} else {
+						} else {	// 자식의 자식이 있을때
 							if (seriesMap.get(prev_current) == null) {
 								double rod = tj.roundd(seriesdata);
 								seriesMap.put(prev_current,Double.toString(rod));
-//								seriesMap.put(prev_current, seriesdata);
 							}
 						}
 					}
