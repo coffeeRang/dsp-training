@@ -1,6 +1,7 @@
-package dh.training3.day1031;
+package dh.training3.day1101;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,9 +19,12 @@ public class TestMain {
 		JSONArray jsonArr = (JSONArray)jsonObj.get("accountObj");
 		
 		AccountSumr sumr = new AccountSumr();
-		List<TreeMap<String, Object>> list = sumr.testReplaceFormat(jsonArr);
-//		sumr.printArrayListToJSONArrayFormat(list);
-		sumr.makeTable(list);
+		List<LinkedHashMap<String, Object>> list = sumr.replaceFormat(jsonArr);
+		
+		sumr.printArrayListToJSONArrayFormat(list);
+
+
+
 		
 	}
 	

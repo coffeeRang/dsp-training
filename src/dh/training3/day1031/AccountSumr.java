@@ -43,6 +43,8 @@ public class AccountSumr {
 		String bizSecName = (String) jsonObj.get("bizSecName");						// 사업부문명
 		String bizSecNum = (String) jsonObj.get("bizSecNum");						// 사업부문번호
 		
+		StringBuffer mainSb = new StringBuffer();
+		
 		
 		if (upperAccountSbjtCd == null) {
 			masterList = new ArrayList<>();
@@ -58,6 +60,7 @@ public class AccountSumr {
 					TreeMap<String, Object> newTreeMap = makeNewTreeMap(accountSbjtName, accountSbjtLvOrder, accountSbjtSortOrder, upperAccountSbjtCd, accountSbjtCd
 							, accountSbjtUnitName, accountSbjtUnitCd, organizationName, organizationNum, bizSecName, bizSecNum);
 					subArr.add(newTreeMap);
+//					mainSb.append(makeStringBuffer(accountSbjtCd, accountSbjtName, organizationNum, organizationName, bizSecNum, bizSecName, accountSbjtUnitName));
 					break;
 					
 				} else {
@@ -69,12 +72,35 @@ public class AccountSumr {
 				
 			}
 		}
+//		return mainSb;
 		return masterList;
 	}
 	
 	
+	public void makeTable(List<TreeMap<String, Object>> list) {
+		System.out.println(list);
+		
+	}
+	
+//	// StringBuffer로 테이블 생성
+//	public StringBuffer makeStringBuffer(String accountSbjtCd, String accountSbjtName, String organizationNum, String organizationName, String bizSecNum, String bizSecName, String accountSbjtUnitName) {
+//		StringBuffer returnSb = new StringBuffer();
+//		returnSb.append("<tr>");
+//		returnSb.append("<td>"+accountSbjtName+"</td>");
+//		returnSb.append("<td>"+organizationNum+"</td>");
+//		returnSb.append("<td>"+bizSecName+"</td>");
+//		returnSb.append("<td></td>");
+//		returnSb.append("<td></td>");
+//		returnSb.append("<td></td>");
+//		returnSb.append("<td>"+accountSbjtUnitName+"</td>");
+//		returnSb.append("</tr>");
+//		return returnSb;
+//	}
+	
+	
 	/**
 	 * 새로운 TreeMap 생성해주는 메서드
+	 * @author dhkim
 	 * @param accountSbjtName
 	 * @param accountSbjtLvOrder
 	 * @param accountSbjtSortOrder
