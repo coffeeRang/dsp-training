@@ -46,54 +46,67 @@ public class AccountSumr {
 			newLinkedHashMap.put("accountSbjtUnitName", accountSbjtUnitName);
 			newLinkedHashMap.put("organizationName", organizationName);
 			newLinkedHashMap.put("bizSecName", bizSecName);
+			newLinkedHashMap.put("pathName", "");
+			newLinkedHashMap.put("subArr", new ArrayList<LinkedHashMap<String, Object>>());
 			list.add(newLinkedHashMap);
 		}
 		
 		List<LinkedHashMap<String, Object>> mainList = new ArrayList<LinkedHashMap<String, Object>>();
 		
 		for (int i = 0; i < list.size(); i++) {
-			LinkedHashMap<String, Object> map =  list.get(i);
+			LinkedHashMap<String, Object> map = list.get(i);
 			HashMap<String, Object> pathMap = new HashMap<String, Object>();
-
+			
 			if ((long) map.get("accountSbjtLvOrder") == 1) {
-				map.put("subArr", new ArrayList<LinkedHashMap<String, Object>>());
 				mainList.add(list.get(i));
 
 			} else {
-				recursiveFunction(mainList, map, pathMap);
+				recursiveFunction(mainList, map, pathMap, (String)list.get(i).get("pathName"), (long)list.get(i).get("accountSbjtLvOrder") );
 
 			}
 		}
 		
-		System.out.println(">>> end");
 		return mainList;
 	}
 	
-	public void recursiveFunction(List<LinkedHashMap<String, Object>> mainList, LinkedHashMap<String, Object> map, HashMap<String, Object> pathMap) {
+	public void recursiveFunction(List<LinkedHashMap<String, Object>> mainList, LinkedHashMap<String, Object> map, HashMap<String, Object> pathMap, String pathName, long accountSbjtLvOrder) {
 		for (int i = 0; i < mainList.size(); i++) {
 			List<LinkedHashMap<String, Object>> subArr = (List<LinkedHashMap<String, Object>>) mainList.get(i).get("subArr");
 			
-			System.out.println("mainList lv order : " + mainList.get(i).get("accountSbjtLvOrder") + " | map lv order : " + map.get("accountSbjtLvOrder"));
-			if (mainList.get(i).get("accountSbjtLvOrder") != map.get("accountSbjtLvOrder")) {
-				pathMap.remove("accountSbjtPath");
-			}
-			pathMap.put("accountSbjtPath", pathMap.get("accountSbjtPath") + " > " + map.get("accountSbjtName"));
-//			System.out.println(pathMap.get("accountSbjtPath") + ">" + map.get("accountSbjtName"));
-			
-			
-			map.put("accountSbjtPath", pathMap.get("accountSbjtPath"));
-
 			if (mainList.get(i).get("accountSbjtCd").equals(map.get("upperAccountSbjtCd"))) {
-				map.put("subArr", new ArrayList<LinkedHashMap<String, Object>>());
 				subArr.add(map);
 				break;
 
 			} else {
-				if (subArr != null) {
-					recursiveFunction(subArr, map, pathMap);
+				
+				// 조건들
+				/**
+				 * 조건들 : 
+				 * 1. pathName 값이 없을 경우 
+				 * 2. 기준이 되는 리스트의 현재 pathName과 map으로 들어온 pathName이 다를 경우
+				 * 3. 기준이 되는 리스트의 현재 accountSbjtLvOrder 값과 map으로 들어온 accountSbjtLvOrder 값이 동일할 경우 
+				 *    기준이 되는 리스트의 현재 accountSbjtLvOrder 값과 map으로 들어온 accountSbjtLvOrder 값이 다를경우
+				 * ** 그밖에 다른 항목들 확인 및 점거해서 [계정명] > [계정명] 구조 만들기
+				 */
+				
+				
+//				pathName = (String)map.get("pathName");
+				if (pathName.equals("")) {
+					map.put("pathName", map.get("accountSbjtName"));
 				}
 				
+				if (!pathName.equals(mainList.get(i).get("pathName"))) {
+					String totalString = mainList.get(i).get("pathName") + " > " + (String)map.get("pathName");
+					map.put("pathName", totalString);
+				}
+					
+				
+				recursiveFunction(subArr, map, pathMap, pathName, accountSbjtLvOrder);
+				
 			}
+//			if (i == 10) {
+//				break;
+//			}
 		}
 		
 	};
