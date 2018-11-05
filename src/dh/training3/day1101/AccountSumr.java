@@ -55,13 +55,18 @@ public class AccountSumr {
 		
 		for (int i = 0; i < list.size(); i++) {
 			LinkedHashMap<String, Object> map = list.get(i);
-			HashMap<String, Object> pathMap = new HashMap<String, Object>();
+			LinkedHashMap<String, Object> pathMap = new LinkedHashMap<String, Object>();
 			
 			if ((long) map.get("accountSbjtLvOrder") == 1) {
+//				list.get(i).put("pathName", list.get(i).get("accountSbjtName"));
+//				pathMap.put("totalMap", list.get(i).get("accountSbjtName"));
 				mainList.add(list.get(i));
+				
+//				pathMap.put("totalMap", value)
+				
 
 			} else {
-				recursiveFunction(mainList, map, pathMap, (String)list.get(i).get("pathName"), (long)list.get(i).get("accountSbjtLvOrder") );
+				recursiveFunction(mainList, map, (String)list.get(i).get("pathName"), (long)list.get(i).get("accountSbjtLvOrder"), pathMap );
 
 			}
 		}
@@ -69,11 +74,13 @@ public class AccountSumr {
 		return mainList;
 	}
 	
-	public void recursiveFunction(List<LinkedHashMap<String, Object>> mainList, LinkedHashMap<String, Object> map, HashMap<String, Object> pathMap, String pathName, long accountSbjtLvOrder) {
+	public void recursiveFunction(List<LinkedHashMap<String, Object>> mainList, LinkedHashMap<String, Object> map, String pathName, long accountSbjtLvOrder, LinkedHashMap<String, Object> pathMap) {
 		for (int i = 0; i < mainList.size(); i++) {
 			List<LinkedHashMap<String, Object>> subArr = (List<LinkedHashMap<String, Object>>) mainList.get(i).get("subArr");
 			
 			if (mainList.get(i).get("accountSbjtCd").equals(map.get("upperAccountSbjtCd"))) {
+				map.put("pathName", map.get("accountSbjtName"));
+				pathMap.put("totalPathName", mainList.get(i).get("pathName") + " > " + map.get("pathName"));
 				subArr.add(map);
 				break;
 
@@ -88,25 +95,29 @@ public class AccountSumr {
 				 *    기준이 되는 리스트의 현재 accountSbjtLvOrder 값과 map으로 들어온 accountSbjtLvOrder 값이 다를경우
 				 * ** 그밖에 다른 항목들 확인 및 점거해서 [계정명] > [계정명] 구조 만들기
 				 */
-				
-				
-//				pathName = (String)map.get("pathName");
 				if (pathName.equals("")) {
 					map.put("pathName", map.get("accountSbjtName"));
-				}
-				
-				if (!pathName.equals(mainList.get(i).get("pathName"))) {
-					String totalString = mainList.get(i).get("pathName") + " > " + (String)map.get("pathName");
-					map.put("pathName", totalString);
-				}
 					
+					if (mainList.get(i).get("accountSbjtCd").equals(map.get("accountSbjtCd")) && accountSbjtLvOrder != (long)mainList.get(i).get("accountSbjtLvOrder")) {
+//						pathMap.put("totalPathName", mainList.get(i).get("pathName") + " > " + map.get("pathName"));
+						System.out.println(mainList.get(i).get("pathName") + " | " + map.get("pathName"));
+						System.out.println(pathMap.get("totalPathName"));
+						
+					}
+					
+				}
 				
-				recursiveFunction(subArr, map, pathMap, pathName, accountSbjtLvOrder);
+//				if (accountSbjtLvOrder != (long)mainList.get(i).get("accountSbjtLvOrder")) {
+//					pathMap.put("totalPathName", mainList.get(i).get("pathName") + " > " + map.get("pathName"));
+////					map.put("pathName", mainList.get(i).get("pathMap") + " > " + map.get("pathMap"));
+////					pathMap.put("", value)
+//				}
+//				System.out.println("현재 pathMap : " + pathMap.get("totalPathName"));
+				
+				recursiveFunction(subArr, map, pathName, accountSbjtLvOrder, pathMap);
 				
 			}
-//			if (i == 10) {
-//				break;
-//			}
+
 		}
 		
 	};
