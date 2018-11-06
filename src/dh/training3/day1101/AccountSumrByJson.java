@@ -31,7 +31,6 @@ public class AccountSumrByJson {
 		}
 
 		printArrayListToJSONArrayFormat(list);
-		System.out.println(">> data total row count : " + jsonArr.size());
 		return list;
 	}
 	
@@ -72,10 +71,10 @@ public class AccountSumrByJson {
 				} else {
 					String upperAccountSbjtCdCdPrefix = upperAccountSbjtCd.replaceAll("0", "");
 					String accountSbjtCdPrefix = list.get(i).get("accountSbjtCd").toString().replaceAll("0", "");
+//					System.out.println(upperAccountSbjtCd + ", accountSbjtCd : " + list.get(i).get("accountSbjtCd"));
 
 					// 상위게정콛, 계정코드 간에 연관관계가 존재할경우만 recursiveFunction 실행
 					if (upperAccountSbjtCdCdPrefix.contains(accountSbjtCdPrefix)) {
-						System.out.println(">> 부모계층 가능 : upperAccountSbjtCdCdPrefix : " + upperAccountSbjtCdCdPrefix + ", accountSbjtCdPrefix : " + accountSbjtCdPrefix);
 						recursiveFunction(subArr, jsonObj);
 					}
 					
