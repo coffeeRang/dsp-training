@@ -13,7 +13,7 @@ import org.json.simple.JSONObject;
 
 import dh.util.UseJson;
 
-public class AccountSumrBak {
+public class AccountSumrByJson {
 	private Set<String> accountSbjtPathSet = new LinkedHashSet<String>();
 	
 	/**
@@ -22,20 +22,17 @@ public class AccountSumrBak {
 	 * @param jsonArr
 	 * @return
 	 */
-//	public List<LinkedHashMap<String, Object>> testReplaceFormat(JSONArray jsonArr) {
-	public String testReplaceFormat(JSONArray jsonArr) {
+	public List<LinkedHashMap<String, Object>> replaceFormat(JSONArray jsonArr) {
 		List<LinkedHashMap<String, Object>> list = new ArrayList<LinkedHashMap<String, Object>>();
-		StringBuffer sb = new StringBuffer();
 
 		for (int i = 0; i < jsonArr.size(); i++) {
 			JSONObject jsonObj = (JSONObject) jsonArr.get(i);
-			recursiveFunction(list, jsonObj, sb);
+			recursiveFunction(list, jsonObj);
 		}
 
 		printArrayListToJSONArrayFormat(list);
-		System.out.println(">> end");
-//		return list;
-		return sb.toString();
+		System.out.println(">> data total row count : " + jsonArr.size());
+		return list;
 	}
 	
 	
@@ -47,119 +44,103 @@ public class AccountSumrBak {
 	 * @param jsonObj
 	 * @return
 	 */
-//	public List<LinkedHashMap<String, Object>> recursiveFunction(List<LinkedHashMap<String, Object>> list, JSONObject jsonObj) {
-	public void recursiveFunction(List<LinkedHashMap<String, Object>> list, JSONObject jsonObj, StringBuffer sb) {
+	public void recursiveFunction(List<LinkedHashMap<String, Object>> list, JSONObject jsonObj) {
 		String upperAccountSbjtCd = (String) jsonObj.get("upperAccountSbjtCd");	// 상위계정코드
-//		String accountSbjtName = (String) jsonObj.get("accountSbjtName");			// 계정명
+		long accountSbjtLvOrder = (long) jsonObj.get("accountSbjtLvOrder");		// 계정레벨순서
 		
-		if (upperAccountSbjtCd == null) {
-			LinkedHashMap<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj, null);
+		if (accountSbjtLvOrder == 1) {
+			LinkedHashMap<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
 			list.add(newLinkedHashMap);
 			
 		} else {
 			for (int i = 0; i < list.size(); i++) {
 				ArrayList<LinkedHashMap<String, Object>> subArr = (ArrayList<LinkedHashMap<String, Object>>) list.get(i).get("subArr");
+
 				if (upperAccountSbjtCd.equals(list.get(i).get("accountSbjtCd"))) {	// 비교하려는 upperAccountSbjtCd 값이 현재 list의 accountSbjtCd와 같이 같을 경우
-					String upperName = (String) list.get(i).get("accountSbjtName");
-					LinkedHashMap<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj, upperName);
-					subArr.add(newLinkedHashMap);
-					
-					sb.append("<tr>");
-					sb.append("<td>" + list.get(i).get("accountSbjtName") + " > " + jsonObj.get("accountSbjtName") + "</td>");
-					sb.append("<td>" + jsonObj.get("organizationName") + "</td>");
-					sb.append("<td>" + jsonObj.get("bizSecName") + "</td>");
-					sb.append("<td></td>");
-					sb.append("<td></td>");
-					sb.append("<td></td>");
-					sb.append("<td></td>");
-					sb.append("<td>" + jsonObj.get("accountSbjtUnitName") + "</td>");
-					sb.append("</tr>");
+					LinkedHashMap<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
+
+					if (list.get(i).get("pathName").equals("")) {
+						newLinkedHashMap.put("pathName", newLinkedHashMap.get("accountSbjtName"));
+						subArr.add(newLinkedHashMap);
+					} else {
+						newLinkedHashMap.put("pathName", list.get(i).get("pathName") + " > " + newLinkedHashMap.get("accountSbjtName"));
+						subArr.add(newLinkedHashMap);
+					}
 					
 					break;
 					
 				} else {
-					// 테스트 중
-					if (subArr != null) {
-						recursiveFunction(subArr, jsonObj, sb);
+					String upperAccountSbjtCdCdPrefix = upperAccountSbjtCd.replaceAll("0", "");
+					String accountSbjtCdPrefix = list.get(i).get("accountSbjtCd").toString().replaceAll("0", "");
+
+					// 상위게정콛, 계정코드 간에 연관관계가 존재할경우만 recursiveFunction 실행
+					if (upperAccountSbjtCdCdPrefix.contains(accountSbjtCdPrefix)) {
+						System.out.println(">> 부모계층 가능 : upperAccountSbjtCdCdPrefix : " + upperAccountSbjtCdCdPrefix + ", accountSbjtCdPrefix : " + accountSbjtCdPrefix);
+						recursiveFunction(subArr, jsonObj);
 					}
 					
-					// 기존 분기처리 로직
-//					if (i == list.size() - 1) {
-//						recursiveFunction(subArr, jsonObj, sb);
-//					}
 				}
 
 			}
 		}
-//		return sb.toString();
-//		return list;
-	}
-	
-	// 테이블 생성
-	public void makeTable(List<LinkedHashMap<String, Object>> list) {
-		for (int i = 0; i < list.size(); i++) {
-			System.out.println(i + " : " + list.get(i).get("subArr"));;
-			
-		}
-		
-		
+
 	}
 	
 	/**
-	 * table row 생성
-	 * @param jsonObj
+	 * table 생성하는 메서드
+	 * @author dhkim
+	 * @param list
+	 * @return
 	 */
-	public String makeTableRow(JSONObject jsonObj) {
-		String accountSbjtName = (String) jsonObj.get("accountSbjtName");			// 계정명
-		String accountSbjtUnitName = (String) jsonObj.get("accountSbjtUnitName");	// 금액 단위 
-		String organizationName = (String) jsonObj.get("organizationName");			// 조직명
-		String bizSecName = (String) jsonObj.get("bizSecName");						// 사업부문명
+	public String makeTable(List<LinkedHashMap<String, Object>> list) {
+		StringBuffer tableStringBuffer = new StringBuffer();
 		
-		StringBuffer tableBuffer = new StringBuffer();
+		for(int i = 0; i < list.size(); i++) {
+			List<LinkedHashMap<String, Object>> tempList = (List<LinkedHashMap<String, Object>>) list.get(i).get("subArr");
+			
+			makeTableRow(tempList, tableStringBuffer);
+			
+		}
+		return tableStringBuffer.toString();
+	}
+	
 
-//		StringBuffer accountSbjtPath = new StringBuffer();
-//
-//		for (String key: accountSbjtPathSet) {
-//			accountSbjtPath.append(key + " > ");
-//		}
-//		accountSbjtPath.deleteCharAt(accountSbjtPath.lastIndexOf(">"));
-//		System.out.println(accountSbjtPath.toString().trim());
-		
+	/**
+	 * table row 생성
+	 * @param list
+	 * @param tableStringBuffer
+	 */
+	public void makeTableRow(List<LinkedHashMap<String, Object>> list, StringBuffer tableStringBuffer) {
+		for(LinkedHashMap<String,Object> map : list) {
+			List<LinkedHashMap<String,Object>> tempArr = (List<LinkedHashMap<String,Object>>) map.get("subArr");
+			
+			if(tempArr.size() == 0) {
+				tableStringBuffer.append("<tr>");
+				tableStringBuffer.append("<td>"+ map.get("pathName") +"</td>");
+				tableStringBuffer.append("<td>"+ map.get("organizationName") +"</td>");
+				tableStringBuffer.append("<td>"+ map.get("bizSecName") +"</td>");
+				tableStringBuffer.append("<td></td>");
+				tableStringBuffer.append("<td></td>");
+				tableStringBuffer.append("<td></td>");
+				tableStringBuffer.append("<td></td>");
+				tableStringBuffer.append("<td>"+ map.get("accountSbjtUnitName") +"</td>");
+				tableStringBuffer.append("</tr>");
+				
+			}else {
+				makeTableRow(tempArr, tableStringBuffer);
 
-		tableBuffer.append("<tr>");
-		tableBuffer.append("<td>" + accountSbjtName + "</td>");
-		tableBuffer.append("<td>" + organizationName + "</td>");
-		tableBuffer.append("<td>" + bizSecName + "</td>");
-		tableBuffer.append("<td></td>");
-		tableBuffer.append("<td></td>");
-		tableBuffer.append("<td></td>");
-		tableBuffer.append("<td></td>");
-		tableBuffer.append("<td>" + accountSbjtUnitName + "</td>");
-		tableBuffer.append("</tr>");
-		
-		
-		return tableBuffer.toString();
+			}
+		}
 		
 	}
 	
 	
 	/**
 	 * 새로운 LinkedHashMap 생성해주는 메서드
-	 * @author dhkim
-	 * @param accountSbjtName
-	 * @param accountSbjtLvOrder
-	 * @param accountSbjtSortOrder
-	 * @param upperAccountSbjtCd
-	 * @param accountSbjtCd
-	 * @param accountSbjtUnitName
-	 * @param accountSbjtUnitCd
-	 * @param organizationName
-	 * @param organizationNum
-	 * @param bizSecName
-	 * @param bizSecNum
+	 * @param jsonObj
 	 * @return
 	 */
-	public LinkedHashMap<String, Object> makeNewLinkedHashMap(JSONObject jsonObj, String upperName) {
+	public LinkedHashMap<String, Object> makeNewLinkedHashMap(JSONObject jsonObj) {
 		String accountSbjtName = (String) jsonObj.get("accountSbjtName");			// 계정명
 		long accountSbjtLvOrder = (Long) jsonObj.get("accountSbjtLvOrder");		// 계정depth 레벨
 		long accountSbjtSortOrder = (long) jsonObj.get("accountSbjtSortOrder");	// 계정정렬 순서
@@ -173,7 +154,6 @@ public class AccountSumrBak {
 		String bizSecNum = (String) jsonObj.get("bizSecNum");						// 사업부문번호
 		
 		LinkedHashMap<String, Object> newLinkedHashMap = new LinkedHashMap<String, Object>();
-		newLinkedHashMap.put("accountSbjtPathName", upperName + " > " + accountSbjtName);
 		newLinkedHashMap.put("accountSbjtName", accountSbjtName);
 		newLinkedHashMap.put("accountSbjtLvOrder", accountSbjtLvOrder);
 		newLinkedHashMap.put("accountSbjtSortOrder", accountSbjtSortOrder);
@@ -185,8 +165,9 @@ public class AccountSumrBak {
 		newLinkedHashMap.put("organizationNum", organizationNum);
 		newLinkedHashMap.put("bizSecName", bizSecName);
 		newLinkedHashMap.put("bizSecNum", bizSecNum);
-		
+		newLinkedHashMap.put("pathName", "");
 		newLinkedHashMap.put("subArr", new ArrayList<LinkedHashMap<String, Object>>());
+
 		return newLinkedHashMap;
 	}
 	
@@ -200,6 +181,7 @@ public class AccountSumrBak {
 		jsonArr.add(list.get(0));
 		System.out.println(jsonArr);
 	}
-	
+
+
 
 }

@@ -13,7 +13,7 @@ import org.json.simple.JSONObject;
 
 import dh.util.UseJson;
 
-public class AccountSumr {
+public class AccountSumrByMap {
 	private Set<String> accountSbjtPathSet = new LinkedHashSet<String>();
 	
 	/**

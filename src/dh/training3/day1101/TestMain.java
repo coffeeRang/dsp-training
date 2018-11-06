@@ -18,14 +18,8 @@ public class TestMain {
 		JSONObject jsonObj =  useJson.getJsonFile();
 		JSONArray jsonArr = (JSONArray)jsonObj.get("accountObj");
 		
-		AccountSumr sumr = new AccountSumr();
-		List<LinkedHashMap<String, Object>> list = sumr.replaceFormat(jsonArr);
-		
-		sumr.printArrayListToJSONArrayFormat(list);
-
-
-
-		
+		AccountSumrByJson sumr = new AccountSumrByJson();
+		sumr.replaceFormat(jsonArr);
 	}
 	
 	
