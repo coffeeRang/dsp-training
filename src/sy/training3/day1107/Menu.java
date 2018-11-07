@@ -1,4 +1,4 @@
-package sy.training3.day1106_2;
+package sy.training3.day1107;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,8 +10,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-public class FinTable2 {
-
+public class Menu {
+	
 	private int totalCnt = -1;
 	/**
 	 * json파일을 읽어서, JSONArray 형태로 리턴하는 메서드
@@ -22,14 +22,14 @@ public class FinTable2 {
 	public JSONArray getJSONFile() {
 		JSONParser parser = new JSONParser();
 		// 현재 class의 상대경로를 조회
-		String path = FinTable2.class.getResource("").getPath();
+		String path = Menu.class.getResource("").getPath();
 		// 해당 상대경로에 존재하는 indicat_db.json 파일을 읽어들인다.
 		Object obj;
 		JSONArray returnJsonArr = null;
 		try {
-			obj = parser.parse(new FileReader(path + "fin_account_db.json"));
+			obj = parser.parse(new FileReader(path + "menu_db.json"));
 			JSONObject jsonObj = (JSONObject) obj;
-			returnJsonArr = (JSONArray) jsonObj.get("accountObj");
+			returnJsonArr = (JSONArray) jsonObj.get("dataMenu");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -65,14 +65,21 @@ public class FinTable2 {
 	 * @return List
 	 */
 	public List<Map<String,Object>> recursiveFunction(List<Map<String,Object>> list, JSONObject jsonObj){
-		//부모코드 찾아주는것
-		String upperAccountSbjtCd = (String) jsonObj.get("upperAccountSbjtCd");
+		//계층레벨 (몇번째 뎁스인지)
+		String menuLv = (String) jsonObj.get("menuLv");
+		//jsonObj의 부모코드
+		String upperMenuId = (String) jsonObj.get("upperMenuId");
+		//회사코드
+		String comapnyNum = (String) jsonObj.get("comapnyNum");
+		
 		// 부모코드가 null일때
-		if(upperAccountSbjtCd == null) {
+		if(menuLv.equals("1")) {
 			//메서드화 시킨LinkedHashMap을 넣어줄 LinkedHashMap을 만듬
 				Map<String,Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
+				newLinkedHashMap.put("menuTotalDepth", jsonObj.get("menuName"));
 				list.add(newLinkedHashMap);
 				return list;
+				
 			// 부모코드가 null이 아닐때
 		} else {
 			for(int i = 0; i < list.size(); i++) {
@@ -80,20 +87,21 @@ public class FinTable2 {
 				ArrayList<Map<String,Object>> subArr = (ArrayList<Map<String,Object>>) list.get(i).get("subArr");
 				
 				// total사이즈를 구해주는 if문
-				long listDepthLv  = (long) list.get(i).get("accountSbjtLvOrder");
+				long listDepthLv  = Integer.parseInt((String)list.get(i).get("menuLv"));
 				if(listDepthLv > totalCnt) {
 					totalCnt = (int)(long)listDepthLv;
+					System.out.println(">>>> totalCnt : "+  totalCnt);
 				}
 				
 				// jsonObject의 부모계정코드(재무의계정코드)가 기준이되는 list의 계정코드와 동일할경우 (true일 경우)
-				if(upperAccountSbjtCd.equals(list.get(i).get("accountSbjtCd"))) {
+				if(upperMenuId.equals(list.get(i).get("menuId"))) {
 					Map<String,Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
-					if(list.get(i).get("accountSbjtTotalDepthName").equals("")) {
-						newLinkedHashMap.put("accountSbjtTotalDepthName",newLinkedHashMap.get("accountSbjtName"));
+					if(list.get(i).get("menuTotalDepth").equals("")) {
+						newLinkedHashMap.put("menuTotalDepth",newLinkedHashMap.get("menuName"));
 						subArr.add(newLinkedHashMap);
 					}else {
 						// accountSbjtTotalDepthName에 부모값을 불러와서 전 값을 쌓아주는 구문
-						newLinkedHashMap.put("accountSbjtTotalDepthName",list.get(i).get("accountSbjtTotalDepthName")+ ">"+ newLinkedHashMap.get("accountSbjtName"));
+						newLinkedHashMap.put("menuTotalDepth",list.get(i).get("menuTotalDepth")+ ">"+ newLinkedHashMap.get("menuName"));
 						subArr.add(newLinkedHashMap);
 					}
 					
@@ -101,10 +109,13 @@ public class FinTable2 {
 					// jsonObject의 부모계정코드가 기준이되는 list의 계정코드와 동일하지않을 경우(false일 경우)
 				} else {
 					//0만 없앰
-					String upperPrefix = upperAccountSbjtCd.replaceAll("0","");
-					String accountPrefix = list.get(i).get("accountSbjtCd").toString().replaceAll("0", "");
+					String upperPrefix = upperMenuId.replaceAll("0","");
+					String menuPrefix = list.get(i).get("menuId").toString().replaceAll("0", "");
+					String tempUpper = comapnyNum.replaceAll("0","");
+					String tempPrefix = list.get(i).get("comapnyNum").toString().replaceAll("0", "");
+					
 					// 연관있는것만 if문 거침
-					if (upperPrefix.contains(accountPrefix)) {
+					if (upperPrefix.contains(menuPrefix) || tempUpper.contains(tempPrefix)) {
 						
 						recursiveFunction(subArr, jsonObj);
 					}
@@ -122,40 +133,29 @@ public class FinTable2 {
 	 */
 	public Map<String, Object> makeNewLinkedHashMap(JSONObject jsonObj) {
 		
-		//계정구분 이름
-		String accountSbjtName = (String) jsonObj.get("accountSbjtName");
-		//계정구분 코드
-		String accountSbjtCd = (String) jsonObj.get("accountSbjtCd");
-		// 계층레벨 (몇번째 뎁스인지)
-		long accountSbjtLvOrder = (long) jsonObj.get("accountSbjtLvOrder");
-		//부모코드 찾아주는것
-		String upperAccountSbjtCd = (String) jsonObj.get("upperAccountSbjtCd");
-		//단위 (백만원)
-		String accountSbjtUnitName = (String) jsonObj.get("accountSbjtUnitName");
-		String accountSbjtUnitCd = (String) jsonObj.get("accountSbjtUnitCd");
-		//조직에 들어가는것
-		String organizationName = (String) jsonObj.get("organizationName");
-		String organizationNum = (String) jsonObj.get("organizationNum");
-		// 사업부문에 들어가는것
-		String bizSecName = (String) jsonObj.get("bizSecName");
-		String bizSecNum = (String) jsonObj.get("bizSecNum");
-		
-		Map<String, Object> newLinkedHashMap = new LinkedHashMap<>();
-		newLinkedHashMap.put("accountSbjtCd", accountSbjtCd);
-		newLinkedHashMap.put("accountSbjtName", accountSbjtName);
-		newLinkedHashMap.put("accountSbjtLvOrder", accountSbjtLvOrder);
-		newLinkedHashMap.put("upperAccountSbjtCd", upperAccountSbjtCd);
-		newLinkedHashMap.put("accountSbjtUnitCd", accountSbjtUnitCd);
-		newLinkedHashMap.put("accountSbjtUnitName", accountSbjtUnitName);
-		newLinkedHashMap.put("organizationNum", organizationNum);
-		newLinkedHashMap.put("organizationName", organizationName);
-		newLinkedHashMap.put("bizSecNum", bizSecNum);
-		newLinkedHashMap.put("bizSecName", bizSecName);
-		newLinkedHashMap.put("accountSbjtTotalDepthName", "");
-		newLinkedHashMap.put("subArr", new ArrayList<LinkedHashMap<String, Object>>());
-		
-		return newLinkedHashMap;
+			//계정구분 이름
+			String menuName = (String) jsonObj.get("menuName");
+			//계정구분 코드
+			String menuId = (String) jsonObj.get("menuId");
+			//계층레벨 (몇번째 뎁스인지)
+			String menuLv = (String) jsonObj.get("menuLv");
+			//부모코드
+			String upperMenuId = (String) jsonObj.get("upperMenuId");
+			//회사코드
+			String comapnyNum = (String) jsonObj.get("comapnyNum");
+
+		LinkedHashMap<String, Object> newLinkedHashMap = new LinkedHashMap<>();
+			newLinkedHashMap.put("menuId", menuId);
+			newLinkedHashMap.put("menuName", menuName);
+			newLinkedHashMap.put("menuLv", menuLv);
+			newLinkedHashMap.put("upperMenuId", upperMenuId);
+			newLinkedHashMap.put("comapnyNum", comapnyNum);
+			newLinkedHashMap.put("menuTotalDepth", "");
+			newLinkedHashMap.put("subArr", new ArrayList<LinkedHashMap<String, Object>>());
+				
+			return newLinkedHashMap;
 	}
+	
 	
 	/**
 	 * StringBuffer를 리턴해서 list를 넘겨주는 메소드
@@ -169,16 +169,8 @@ public class FinTable2 {
 		JSONArray jsonArr = getJSONFile();
 		List<Map<String,Object>> list = replaceFormat(jsonArr);
 		StringBuffer sb = new StringBuffer();
-		sb.append("<tr style='text-align: center'>");
-		sb.append("<td colspan='"+ totalCnt +"'>"+"계정구분</td>");
-		sb.append("<td>조직</td>");
-		sb.append("<td>사업부문</td>");
-		sb.append("<td>계획</td>");
-		sb.append("<td>추정</td>");
-		sb.append("<td>현황</td>");
-		sb.append("<td>특이사항</td>");
-		sb.append("<td>단위</td>");
-		sb.append("</tr>");
+		
+//		sb.append("");
 		
 		// tempList안에는 재무의subArr가 들어있다.
 		for(int i = 0; i < list.size(); i++) {
@@ -188,6 +180,7 @@ public class FinTable2 {
 		}
 			return sb.toString();
 	}
+	
 	
 	/**
 	 * 자신을 계속 호출하면서 <td>를 만들어주는 메소드.
@@ -200,15 +193,17 @@ public class FinTable2 {
 		for(LinkedHashMap<String,Object> map : parserList) {
 			// tempArr 안에는 parserList안에 subArr들이 들어있음
 			List<LinkedHashMap<String,Object>> tempArr = (List<LinkedHashMap<String,Object>>) map.get("subArr");
+			
+			
+			
 			// Array의 사이즈가 0일때
 			if(tempArr.size() == 0) {
 				// String 형태로 받아온다.
-				String text = map.get("accountSbjtTotalDepthName").toString();
-				// 자기 뎁스의 크기만큼 나옴 (PL > 매출액  <- length = 1)
-				String[] splitDepthNameArr = text.split(">"); 
+				String textMenu = map.get("menuTotalDepth").toString();
+				String[] splitDepthNameArr = textMenu.split(">"); 
 				
 				sb.append("<tr>");
-				sb.append("<td>" + map.get("accountSbjtTotalDepthName").toString().replaceAll(">", "<td>") +"</td>");
+				sb.append("<td>" + map.get("menuTotalDepth").toString().replaceAll(">", "<td>") +"</td>");
 				
 				if(splitDepthNameArr.length < totalCnt) {
 					
@@ -217,14 +212,8 @@ public class FinTable2 {
 							sb.append("<td></td>");
 						}
 				}
-				sb.append(mapValueNull(map.get("organizationName")));
-				sb.append(mapValueNull(map.get("bizSecName")));
-				sb.append("<td></td>");
-				sb.append("<td></td>");
-				sb.append("<td></td>");
-				sb.append("<td></td>");
-				sb.append(mapValueNull(map.get("accountSbjtUnitName")));
 				sb.append("</tr>");
+				
 				
 				//Array의 사이즈가 0이 아닐때
 			}else {
@@ -233,6 +222,7 @@ public class FinTable2 {
 		}
 		return sb;
 	}
+	
 	/**
 	 * null 일때, <td></td>를 넣어서 화면에 null이 출력될 수 없게 만들어주는 메소드
 	 * 
