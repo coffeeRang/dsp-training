@@ -22,8 +22,8 @@ public class AccountSumrByJson {
 	 * @param jsonArr
 	 * @return
 	 */
-	public List<LinkedHashMap<String, Object>> replaceFormat(JSONArray jsonArr) {
-		List<LinkedHashMap<String, Object>> list = new ArrayList<LinkedHashMap<String, Object>>();
+	public List<Map<String, Object>> replaceFormat(JSONArray jsonArr) {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 
 		for (int i = 0; i < jsonArr.size(); i++) {
 			JSONObject jsonObj = (JSONObject) jsonArr.get(i);
@@ -43,20 +43,22 @@ public class AccountSumrByJson {
 	 * @param jsonObj
 	 * @return
 	 */
-	public void recursiveFunction(List<LinkedHashMap<String, Object>> list, JSONObject jsonObj) {
+	public void recursiveFunction(List<Map<String, Object>> list, JSONObject jsonObj) {
 		String upperAccountSbjtCd = (String) jsonObj.get("upperAccountSbjtCd");	// 상위계정코드
 		long accountSbjtLvOrder = (long) jsonObj.get("accountSbjtLvOrder");		// 계정레벨순서
 		
 		if (accountSbjtLvOrder == 1) {
-			LinkedHashMap<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
+			Map<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
 			list.add(newLinkedHashMap);
+			
+
 			
 		} else {
 			for (int i = 0; i < list.size(); i++) {
-				ArrayList<LinkedHashMap<String, Object>> subArr = (ArrayList<LinkedHashMap<String, Object>>) list.get(i).get("subArr");
+				ArrayList<Map<String, Object>> subArr = (ArrayList<Map<String, Object>>) list.get(i).get("subArr");
 
 				if (upperAccountSbjtCd.equals(list.get(i).get("accountSbjtCd"))) {	// 비교하려는 upperAccountSbjtCd 값이 현재 list의 accountSbjtCd와 같이 같을 경우
-					LinkedHashMap<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
+					Map<String, Object> newLinkedHashMap = makeNewLinkedHashMap(jsonObj);
 
 					if (list.get(i).get("pathName").equals("")) {
 						newLinkedHashMap.put("pathName", newLinkedHashMap.get("accountSbjtName"));
@@ -91,14 +93,15 @@ public class AccountSumrByJson {
 	 * @param list
 	 * @return
 	 */
-	public String makeTable(List<LinkedHashMap<String, Object>> list) {
+	public String makeTable(List<Map<String, Object>> list) {
 		StringBuffer tableStringBuffer = new StringBuffer();
 		List<String[]> pathArrList = new ArrayList<String[]>();
 		int maxTdCount = 0;	// 생성해야 할 td 갯수
 		
 		for(int i = 0; i < list.size(); i++) {
-			List<LinkedHashMap<String, Object>> tempList = (List<LinkedHashMap<String, Object>>) list.get(i).get("subArr");
+			List<Map<String, Object>> tempList = (List<Map<String, Object>>) list.get(i).get("subArr");
 			checkTotalPathNameCount(tempList, pathArrList);
+			
 		}
 		
 		for (int i = 0; i < pathArrList.size(); i++) {
@@ -124,7 +127,7 @@ public class AccountSumrByJson {
 		
 
 		for(int i = 0; i < list.size(); i++) {
-			List<LinkedHashMap<String, Object>> tempList = (List<LinkedHashMap<String, Object>>) list.get(i).get("subArr");
+			List<Map<String, Object>> tempList = (List<Map<String, Object>>) list.get(i).get("subArr");
 			
 			makeTableRow(tempList, tableStringBuffer, maxTdCount);
 			
@@ -138,14 +141,14 @@ public class AccountSumrByJson {
 	 * @param list
 	 * @param tableStringBuffer
 	 */
-	public void checkTotalPathNameCount(List<LinkedHashMap<String, Object>> list, List<String[]> pathArrList) {
-		for(LinkedHashMap<String,Object> map : list) {
-			List<LinkedHashMap<String,Object>> tempArr = (List<LinkedHashMap<String,Object>>) map.get("subArr");
+	public void checkTotalPathNameCount(List<Map<String, Object>> list, List<String[]> pathArrList) {
+		for(Map<String,Object> map : list) {
+			List<Map<String,Object>> tempArr = (List<Map<String,Object>>) map.get("subArr");
 			
 			if(tempArr.size() == 0) {
-
 				String pathName = map.get("pathName").toString();
 				pathArrList.add(pathName.split(" > "));
+				
 				
 			}else {
 				checkTotalPathNameCount(tempArr, pathArrList);
@@ -161,9 +164,9 @@ public class AccountSumrByJson {
 	 * @param list
 	 * @param tableStringBuffer
 	 */
-	public void makeTableRow(List<LinkedHashMap<String, Object>> list, StringBuffer tableStringBuffer, int maxTdCount) {
-		for(LinkedHashMap<String,Object> map : list) {
-			List<LinkedHashMap<String,Object>> tempArr = (List<LinkedHashMap<String,Object>>) map.get("subArr");
+	public void makeTableRow(List<Map<String, Object>> list, StringBuffer tableStringBuffer, int maxTdCount) {
+		for(Map<String,Object> map : list) {
+			List<Map<String,Object>> tempArr = (List<Map<String,Object>>) map.get("subArr");
 			
 			if(tempArr.size() == 0) {
 				String[] pathArr = {};
@@ -216,7 +219,7 @@ public class AccountSumrByJson {
 	 * @param jsonObj
 	 * @return
 	 */
-	public LinkedHashMap<String, Object> makeNewLinkedHashMap(JSONObject jsonObj) {
+	public Map<String, Object> makeNewLinkedHashMap(JSONObject jsonObj) {
 		String accountSbjtName = (String) jsonObj.get("accountSbjtName");			// 계정명
 		long accountSbjtLvOrder = (Long) jsonObj.get("accountSbjtLvOrder");		// 계정depth 레벨
 		long accountSbjtSortOrder = (long) jsonObj.get("accountSbjtSortOrder");	// 계정정렬 순서
@@ -229,7 +232,7 @@ public class AccountSumrByJson {
 		String bizSecName = (String) jsonObj.get("bizSecName");						// 사업부문명
 		String bizSecNum = (String) jsonObj.get("bizSecNum");						// 사업부문번호
 		
-		LinkedHashMap<String, Object> newLinkedHashMap = new LinkedHashMap<String, Object>();
+		Map<String, Object> newLinkedHashMap = new LinkedHashMap<String, Object>();
 		newLinkedHashMap.put("accountSbjtName", accountSbjtName);
 		newLinkedHashMap.put("accountSbjtLvOrder", accountSbjtLvOrder);
 		newLinkedHashMap.put("accountSbjtSortOrder", accountSbjtSortOrder);
@@ -252,7 +255,7 @@ public class AccountSumrByJson {
 	 * @author dhkim
 	 * @param list
 	 */
-	public void printArrayListToJSONArrayFormat(List<LinkedHashMap<String, Object>> list) {
+	public void printArrayListToJSONArrayFormat(List<Map<String, Object>> list) {
 		JSONArray jsonArr = new JSONArray();
 		jsonArr.add(list.get(0));
 		System.out.println(jsonArr);
