@@ -1,6 +1,7 @@
-package dh.training3.day1107;
+package dh.training3.day1108;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import org.json.simple.JSONObject;
 public class Menu {
 	
 	private int totalDepthCount = -1;
+	private int rowspanCount = 0;
+
 	
 	/**
 	 * TestMain에서 호출되는 메서드 - json 파일 읽어들어 구조 변경
@@ -132,11 +135,13 @@ public class Menu {
 			String title = "메뉴 depth "+ (i + 1);
 			tableStringBuffer.append("<td style=\"text-align: center;\">" + title + "</td>");
 		}
+		
+		Map<String, String> defaultNameMap = new HashMap<String, String>();
 
 		for(int i = 0; i < list.size(); i++) {
 			List<Map<String, Object>> tempList = (List<Map<String, Object>>) list.get(i).get("subArr");
 			
-			makeTableRow(tempList, tableStringBuffer, totalDepthCount);
+			makeTableRow(tempList, tableStringBuffer, totalDepthCount, defaultNameMap);
 			
 		}
 		return tableStringBuffer.toString();
@@ -150,7 +155,8 @@ public class Menu {
 	 * @param list
 	 * @param tableStringBuffer
 	 */
-	public void makeTableRow(List<Map<String, Object>> list, StringBuffer tableStringBuffer, int totalDepthCount) {
+	public void makeTableRow(List<Map<String, Object>> list, StringBuffer tableStringBuffer, int totalDepthCount, Map<String, String> defaultNameMap) {
+		
 		for(Map<String,Object> map : list) {
 			List<Map<String,Object>> tempArr = (List<Map<String,Object>>) map.get("subArr");
 			
@@ -166,15 +172,31 @@ public class Menu {
 					if (pathArr.length < totalDepthCount && j > pathArr.length -1) {
 						tableStringBuffer.append("<td></td>");
 					} else {
-						tableStringBuffer.append("<td>"+ pathArr[j] +"</td>");
+						String depthKey = "depth" + (j + 1);
+						String depthName = defaultNameMap.get(depthKey); 
+						
+						if (pathArr[j].equals(depthName) ) {
+							tableStringBuffer.append("<td></td>");
+
+						} else {
+							defaultNameMap.put(depthKey, pathArr[j]);
+//							tableStringBuffer.append("<td rowspan='" + rowspanCount + "'>"+ pathArr[j] +"</td>");
+//							System.out.println(">> 입력되는 값 : " + pathArr[j]);
+
+							tableStringBuffer.append("<td>"+ pathArr[j] +"</td>");
+						}
+						
 					}
+
 				}
 
-
+				
 				tableStringBuffer.append("</tr>");		// tr 종료
 				
 			}else {
-				makeTableRow(tempArr, tableStringBuffer, totalDepthCount);
+//				rowspanCount++;
+				System.out.println(">> recursive 돌기 전 rowspanCount : "+ rowspanCount);
+				makeTableRow(tempArr, tableStringBuffer, totalDepthCount, defaultNameMap);
 
 			}
 		}
